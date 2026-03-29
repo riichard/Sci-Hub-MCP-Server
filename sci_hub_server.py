@@ -52,7 +52,7 @@ def _read_transport_env() -> str:
 
 DEFAULT_TRANSPORT = _read_transport_env()
 DEFAULT_HOST = os.getenv("MCP_HOST", "0.0.0.0")
-DEFAULT_PORT = _read_int_env("MCP_PORT", 8000)
+DEFAULT_PORT = _read_int_env("MCP_PORT", 7337)
 DEFAULT_SSE_PATH = _normalize_path(os.getenv("MCP_SSE_PATH", "/sse"))
 DEFAULT_MESSAGE_PATH = _normalize_path(os.getenv("MCP_MESSAGE_PATH", "/messages/"), trailing_slash=True)
 DEFAULT_STREAMABLE_HTTP_PATH = _normalize_path(os.getenv("MCP_STREAMABLE_HTTP_PATH", "/mcp"))

@@ -43,7 +43,7 @@ To run a persistent server that starts automatically on macOS login:
 curl -fsSL https://raw.githubusercontent.com/riichard/Sci-Hub-MCP-Server/main/install.sh | bash -s -- --service
 ```
 
-This installs a macOS LaunchAgent. The server runs at `http://127.0.0.1:8000/mcp` and restarts automatically if it crashes.
+This installs a macOS LaunchAgent. The server runs at `http://127.0.0.1:7337/mcp` and restarts automatically if it crashes.
 
 ```bash
 # Stop the service
@@ -56,7 +56,7 @@ tail -f ~/Library/Logs/sci-hub-mcp.log
 ### Other transports
 
 ```bash
-sci-hub-mcp --transport sse --host 0.0.0.0 --port 8000
+sci-hub-mcp --transport sse --host 0.0.0.0 --port 7337
 ```
 
 All flags can also be set via environment variables: `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT`, `MCP_STREAMABLE_HTTP_PATH`, `MCP_SSE_PATH`, `MCP_MESSAGE_PATH`.
@@ -95,7 +95,7 @@ SCIHUB_BASE_URL=https://sci-hub.se SCIHUB_TIMEOUT_SECONDS=30 python sci_hub_serv
 
 ```bash
 docker build -t sci-hub-mcp .
-docker run -p 8000:8000 sci-hub-mcp
+docker run -p 7337:7337 sci-hub-mcp
 ```
 
 ## Contributing

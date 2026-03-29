@@ -6,7 +6,7 @@ set -euo pipefail
 REPO="riichard/Sci-Hub-MCP-Server"
 PACKAGE="sci-hub-mcp-server @ git+https://github.com/${REPO}"
 LABEL="com.riichard.sci-hub-mcp"
-PORT=8000
+PORT=7337
 
 # ── helpers ──────────────────────────────────────────────────────────────────
 info()  { printf '\033[1;34m➜\033[0m  %s\n' "$*"; }
