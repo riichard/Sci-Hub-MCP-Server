@@ -25,12 +25,23 @@ The Sci-Hub MCP Server provides a bridge between AI assistants and Sci-Hub's rep
 
 1. Clone the repository:
    ```
-   git clone https://github.com/JackKuo666/Sci-Hub-MCP-Server.git
+   git clone https://github.com/riichard/Sci-Hub-MCP-Server.git
    cd Sci-Hub-MCP-Server
    ```
 
-2. Install the required dependencies:
+2. Install with [uv](https://docs.astral.sh/uv/) (recommended — creates an isolated environment automatically):
    ```
+   uv venv && uv pip install -e .
+   ```
+   Then run using `.venv/bin/python sci_hub_server.py` or activate the venv first:
+   ```
+   source .venv/bin/activate
+   python sci_hub_server.py
+   ```
+
+   Alternatively, install via pip into a standard virtualenv:
+   ```
+   python -m venv .venv && source .venv/bin/activate
    pip install -r requirements.txt
    ```
 

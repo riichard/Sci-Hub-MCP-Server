@@ -1,0 +1,23 @@
+[project]
+name = "sci-hub-mcp-server"
+version = "0.1.0"
+description = "MCP server for searching and downloading academic papers via Sci-Hub"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "requests>=2.31.0",
+    "bs4>=0.0.1",
+    "mcp>=1.0.0",
+    "scihub",
+    "curl-cffi>=0.14.0",
+]
+
+[project.scripts]
+sci-hub-mcp = "sci_hub_server:main"
+
+[tool.hatch.build.targets.wheel]
+include = ["sci_hub_server.py", "sci_hub_search.py"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
