@@ -36,45 +36,99 @@ The Sci-Hub MCP Server provides a bridge between AI assistants and Sci-Hub's rep
 
 ## 📊 Usage
 
-Start the MCP server:
+Start the MCP server (network mode, Streamable HTTP, default):
 
 ```bash
 python sci_hub_server.py
 ```
 
-## Usage with Claude Desktop
+Default endpoint (local access):
 
-Add this configuration to your `claude_desktop_config.json`:
+- `http://localhost:8000/mcp` (server bind address defaults to `0.0.0.0`)
 
-(Mac OS)
+Optional runtime flags:
 
-```json
-{
-  "mcpServers": {
-    "scihub": {
-      "command": "python",
-      "args": ["-m", "sci_hub_server.py"]
-      }
-  }
-}
+```bash
+# Streamable HTTP (recommended for Claude Desktop)
+python sci_hub_server.py --transport streamable-http --host 0.0.0.0 --port 8000 --streamable-http-path /mcp
+
+# SSE transport
+python sci_hub_server.py --transport sse --host 0.0.0.0 --port 8000 --sse-path /sse --message-path /messages/
+
+# Stdio transport (legacy/local MCP clients)
+python sci_hub_server.py --transport stdio
 ```
 
-(Windows version):
+Environment variable equivalents:
 
-```json
-{
-  "mcpServers": {
-    "scihub": {
-      "command": "C:\\Users\\YOUR\\PATH\\miniconda3\\envs\\mcp_server\\python.exe",
-      "args": [
-        "D:\\code\\YOUR\\PATH\\Sci-Hub-MCP-Server\\sci_hub_server.py"
-      ],
-      "env": {},
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
+- `MCP_TRANSPORT`
+- `MCP_HOST`
+- `MCP_PORT`
+- `MCP_STREAMABLE_HTTP_PATH`
+- `MCP_SSE_PATH`
+- `MCP_MESSAGE_PATH`
+- `MCP_MOUNT_PATH`
+
+## Configure Sci-Hub Mirror
+
+The server now prioritizes `https://sci-hub.ren` by default.
+
+- `SCIHUB_BASE_URL`: Primary Sci-Hub mirror URL/host (default: `https://sci-hub.ren`)
+- `SCIHUB_BASE_URLS`: Optional comma-separated additional mirrors
+- `SCIHUB_INCLUDE_DEFAULT_MIRRORS`: Whether to append package default mirrors (`false` by default)
+- `SCIHUB_PROXY`: Optional proxy URL (for example `socks5://127.0.0.1:9050`)
+- `SCIHUB_COOKIE`: Optional cookie header (useful for `cf_clearance` if Cloudflare challenges are active)
+- `SCIHUB_TIMEOUT_SECONDS`: Request timeout in seconds (default: `20`)
+- `SCIHUB_HTTP_CLIENT`: `curl_cffi` or `requests` (default auto-selects `curl_cffi` when installed)
+- `SCIHUB_IMPERSONATE`: Browser fingerprint for `curl_cffi` (default: `chrome124`)
+- `SCIHUB_USER_AGENT`: Override user agent string for Sci-Hub/CrossRef requests
+- `SCIHUB_REFERER`: Override referer header used for mirror requests
+- `SCIHUB_DOWNLOAD_DIR`: Fallback directory for downloads when requested output paths are not writable from the MCP runtime
+
+Example:
+
+```bash
+SCIHUB_BASE_URL=https://sci-hub.ren \
+SCIHUB_BASE_URLS=sci-hub.se,sci-hub.st \
+SCIHUB_TIMEOUT_SECONDS=30 \
+python sci_hub_server.py
+```
+
+If all mirrors return Cloudflare challenge pages, configure `SCIHUB_PROXY` or `SCIHUB_COOKIE` and retry.
+
+### Keyword Search Behavior
+
+`search_scihub_by_keyword` now returns up to `num_results` items even when some PDFs cannot be resolved.  
+Each item has:
+- `status: "success"` when a Sci-Hub PDF URL was resolved
+- `status: "metadata_only"` when CrossRef metadata was found but Sci-Hub PDF resolution failed
+
+### Download Behavior
+
+`download_scihub_pdf` accepts direct PDF URLs and Sci-Hub page URLs.  
+If the provided `output_path` is not writable in the MCP runtime (for example VM paths like `/home/claude/...`), it automatically falls back to `SCIHUB_DOWNLOAD_DIR` (or `~/Downloads`).
+
+## Usage with Claude Desktop (Network MCP Connectors)
+
+Claude Desktop custom connectors use network MCP servers. Use the server URL flow instead of local `claude_desktop_config.json` command entries.
+
+1. Deploy this server where Claude can reach it over HTTPS.
+2. Run the server in Streamable HTTP mode (default):
+   ```bash
+   python sci_hub_server.py --transport streamable-http --host 0.0.0.0 --port 8000
+   ```
+3. Expose it via TLS (for example behind a reverse proxy) so the MCP endpoint is available at a public URL like:
+   - `https://your-domain.example/mcp`
+4. In Claude Desktop, open `Settings -> Connectors -> Add custom connector` and paste the MCP URL.
+
+If you prefer SSE, this server also supports it at `/sse` with message posting at `/messages/`.
+
+### Legacy command-based setup (non-Claude clients only)
+
+If another client still needs a local stdio MCP process, run:
+
+```bash
+python sci_hub_server.py --transport stdio
 ```
 
 ## 🛠 MCP Tools
