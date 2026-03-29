@@ -4,58 +4,62 @@ An MCP server that lets AI assistants search and download academic papers via Sc
 
 ## Installation
 
-Requires Python 3.10+. Using [uv](https://docs.astral.sh/uv/) is recommended — it creates an isolated environment with no dependency conflicts:
+**One command** — installs `sci-hub-mcp` globally with an isolated environment (no cloning needed):
 
 ```bash
-git clone https://github.com/riichard/Sci-Hub-MCP-Server.git
-cd Sci-Hub-MCP-Server
-uv venv && uv pip install -e .
-source .venv/bin/activate
+curl -fsSL https://raw.githubusercontent.com/riichard/Sci-Hub-MCP-Server/main/install.sh | bash
 ```
 
-Or with standard pip:
+This requires [uv](https://astral.sh/uv). If you don't have it, the script installs it automatically. It also auto-configures Claude Desktop if it's installed.
+
+### Manual install (alternative)
 
 ```bash
-python -m venv .venv && source .venv/bin/activate
-pip install -r requirements.txt
+uv tool install "sci-hub-mcp-server @ git+https://github.com/riichard/Sci-Hub-MCP-Server"
 ```
 
 ## Running the server
 
-Default mode is Streamable HTTP on `http://localhost:8000/mcp`:
+### Claude Desktop (stdio — recommended)
 
-```bash
-python sci_hub_server.py
-```
-
-Other transports:
-
-```bash
-# Stdio (for local MCP clients)
-python sci_hub_server.py --transport stdio
-
-# SSE
-python sci_hub_server.py --transport sse --host 0.0.0.0 --port 8000
-```
-
-All flags can also be set via environment variables: `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT`, `MCP_STREAMABLE_HTTP_PATH`, `MCP_SSE_PATH`, `MCP_MESSAGE_PATH`.
-
-## Claude Desktop setup
-
-For local stdio usage, add to `claude_desktop_config.json`:
+The server is launched automatically by Claude Desktop on demand — no service needed. Add to `claude_desktop_config.json`:
 
 ```json
 {
   "mcpServers": {
     "scihub": {
-      "command": "/path/to/Sci-Hub-MCP-Server/.venv/bin/python",
-      "args": ["/path/to/Sci-Hub-MCP-Server/sci_hub_server.py", "--transport", "stdio"]
+      "command": "sci-hub-mcp",
+      "args": ["--transport", "stdio"]
     }
   }
 }
 ```
 
-For network usage (Streamable HTTP), deploy the server and add the URL via **Settings → Connectors → Add custom connector** in Claude Desktop.
+### Persistent HTTP service (auto-starts on login)
+
+To run a persistent server that starts automatically on macOS login:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/riichard/Sci-Hub-MCP-Server/main/install.sh | bash -s -- --service
+```
+
+This installs a macOS LaunchAgent. The server runs at `http://127.0.0.1:8000/mcp` and restarts automatically if it crashes.
+
+```bash
+# Stop the service
+launchctl unload ~/Library/LaunchAgents/com.riichard.sci-hub-mcp.plist
+
+# View logs
+tail -f ~/Library/Logs/sci-hub-mcp.log
+```
+
+### Other transports
+
+```bash
+sci-hub-mcp --transport sse --host 0.0.0.0 --port 8000
+```
+
+All flags can also be set via environment variables: `MCP_TRANSPORT`, `MCP_HOST`, `MCP_PORT`, `MCP_STREAMABLE_HTTP_PATH`, `MCP_SSE_PATH`, `MCP_MESSAGE_PATH`.
 
 ## Mirror configuration
 
